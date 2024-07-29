@@ -1,0 +1,52 @@
+name: Deploy API Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/deploy-docs.yml'
+      - 'openapi-character.yaml'
+      - 'openapi-core.yaml'
+      - 'openapi-session.yaml'
+      - 'images/**'
+
+jobs:
+  build:
+    name: Build and Deploy API documentation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install Redoc CLI
+      run: npm install -g @redocly/cli
+
+    - name: Build Documentation for Character API
+      run: redocly build-docs openapi-character.yaml --output character.html
+
+    - name: Build Documentation for Core API
+      run: redocly build-docs openapi-core.yaml --output core.html
+
+    - name: Build Documentation for Session API
+      run: redocly build-docs openapi-session.yaml --output session.html
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        personal_token: ${{ secrets.G_TOKEN }}
+        publish_dir: .
+        publish_branch: gh-pages
+        allow_empty_commit: false
+        keep_files: false
+        force_orphan: false
+        enable_jekyll: false
+        disable_nojekyll: false
+        exclude_assets: '.github'

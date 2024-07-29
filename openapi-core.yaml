@@ -1,0 +1,452 @@
+openapi: 3.1.0
+info:
+  title: FountainAI Core Script Management API
+  description: |
+    This API handles script management, including section headings, transitions, and orchestration-related functionalities.
+  version: "2.0.0"
+
+servers:
+  - url: 'https://core.fountain.coach'
+    description: Production server for Core Script Management API
+  - url: 'http://localhost:8080'
+    description: Development server (Docker environment)
+
+paths:
+  /scripts:
+    get:
+      summary: Retrieve All Scripts
+      operationId: listScripts
+      description: Lists all screenplay scripts stored within the system. This endpoint leverages Redis caching for improved query performance.
+      responses:
+        '200':
+          description: An array of scripts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Script'
+              examples:
+                allScripts:
+                  summary: Example of retrieving all scripts
+                  value:
+                    - scriptId: 1
+                      title: "Sunset Boulevard"
+                      description: "A screenplay about Hollywood and faded glory."
+                      author: "Billy Wilder"
+                      sequence: 1
+    post:
+      summary: Create a New Script
+      operationId: createScript
+      description: Creates a new screenplay script record in the system. RedisAI provides recommendations and validation during creation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScriptCreateRequest'
+            examples:
+              createScriptExample:
+                summary: Example of script creation
+                value:
+                  title: "New Dawn"
+                  description: "A story about renewal and second chances."
+                  author: "Jane Doe"
+                  sequence: 1
+      responses:
+        '201':
+          description: Script successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Script'
+              examples:
+                scriptCreated:
+                  summary: Example of a created script
+                  value:
+                    scriptId: 2
+                    title: "New Dawn"
+                    description: "A story about renewal and second chances."
+                    author: "Jane Doe"
+                    sequence: 1
+        '400':
+          description: Bad request due to missing required fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                badRequestExample:
+                  value:
+                    message: "Missing required fields: 'title' or 'author'."
+  /scripts/{scriptId}:
+    get:
+      summary: Retrieve a Script by ID
+      operationId: getScriptById
+      description: Retrieves the details of a specific screenplay script by its unique identifier (scriptId). Redis caching improves retrieval performance.
+      parameters:
+        - name: scriptId
+          in: path
+          required: true
+          description: Unique identifier of the screenplay script to retrieve.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detailed information about the requested script.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Script'
+              examples:
+                retrievedScript:
+                  summary: Example of a retrieved script
+                  value:
+                    scriptId: 1
+                    title: "Sunset Boulevard"
+                    description: "A screenplay about Hollywood and faded glory."
+                    author: "Billy Wilder"
+                    sequence: 1
+        '404':
+          description: The script with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notFoundExample:
+                  value:
+                    message: "Script not found with ID: 3"
+    put:
+      summary: Update a Script by ID
+      operationId: updateScript
+      description: Updates an existing screenplay script with new details. RedisAI provides recommendations and validation for updating script content.
+      parameters:
+        - name: scriptId
+          in: path
+          required: true
+          description: Unique identifier of the screenplay script to update.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScriptUpdateRequest'
+            examples:
+              updateScriptExample:
+                summary: Example of updating a script
+                value:
+                  title: "Sunset Boulevard Revised"
+                  description: "Updated description with more focus on character development."
+                  author: "Billy Wilder"
+                  sequence: 2
+      responses:
+        '200':
+          description: Script successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Script'
+              examples:
+                scriptUpdated:
+                  summary: Example of an updated script
+                  value:
+                    scriptId: 1
+                    title: "Sunset Boulevard Revised"
+                    description: "Updated description with more focus on character development."
+                    author: "Billy Wilder"
+                    sequence: 2
+        '400':
+          description: Bad request due to invalid input data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                badRequestUpdateExample:
+                  value:
+                    message: "Invalid input data: 'sequence' must be a positive number."
+        '404':
+          description: The script with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notFoundUpdateExample:
+                  value:
+                    message: "Script not found with ID: 4"
+    delete:
+      summary: Delete a Script by ID
+      operationId: deleteScript
+      description: Deletes a specific screenplay script from the system, identified by its scriptId.
+      parameters:
+        - name: scriptId
+          in: path
+          required: true
+          description: Unique identifier of the screenplay script to delete.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Script successfully deleted.
+        '404':
+          description: The script with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notFoundDeleteExample:
+                  value:
+                    message: "Script not found with ID: 5"
+  /sectionHeadings:
+    get:
+      summary: Retrieve Section Headings
+      operationId: listSectionHeadings
+      description: Fetches a list of all Section Headings across scripts, providing an overview of script structures. This endpoint leverages Redis caching to improve query performance.
+      responses:
+        '200':
+          description: Successfully retrieved a JSON array of Section Headings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SectionHeading'
+              examples:
+                sectionHeadingsExample:
+                  value:
+                    - headingId: 1
+                      scriptId: 101
+                      title: "Introduction"
+                      sequence: 1
+                    - headingId: 2
+                      scriptId: 101
+                      title: "Rising Action"
+                      sequence: 2
+    post:
+      summary: Create Section Heading
+      operationId: createSectionHeading
+      description: Creates a new Section Heading within a script, specifying its sequence, title, and associated script ID. RedisAI middleware provides recommendations and validation during the creation process.
+      requestBody:
+        required: true
+        description: Data required to create a new Section Heading.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionHeading'
+            examples:
+              createSectionHeadingExample:
+                value:
+                  scriptId: 101
+                  title: "Climax"
+                  sequence: 3
+      responses:
+        '201':
+          description: Successfully created a new Section Heading.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionHeading'
+              examples:
+                createdSectionHeading:
+                  value:
+                    headingId: 3
+                    scriptId: 101
+                    title: "Climax"
+                    sequence: 3
+  /generate_csound_file:
+    post:
+      summary: Generate Csound File
+      operationId: generateCsoundFile
+      description: Generates a `.csd` file based on preset orchestration settings.
+      responses:
+        '201':
+          description: Csound file successfully generated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  csoundFilePath:
+                    type: string
+                    description: Path to the generated Csound file.
+  /generate_lilypond_file:
+    post:
+      summary: Generate LilyPond File
+      operationId: generateLilyPondFile
+      description: Generates a `.ly` file based on preset orchestration settings.
+      responses:
+        '201':
+          description: LilyPond file successfully generated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lilyPondFilePath:
+                    type: string
+                    description: Path to the generated LilyPond file.
+  /generate_midi_file:
+    post:
+      summary: Generate MIDI File
+      operationId: generateMIDIFile
+      description: Generates a `.mid` file based on preset orchestration settings.
+      responses:
+        '201':
+          description: MIDI file successfully generated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  midiFilePath:
+                    type: string
+                    description: Path to the generated MIDI file.
+  /execute_csound:
+    post:
+      summary: Execute Csound
+      operationId: executeCsound
+      description: Processes an existing `.csd` file using Csound.
+      requestBody:
+        required: true
+        description: JSON object specifying the path to the `.csd` file to process.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                csoundFilePath:
+                  type: string
+                  description: Path to the existing `.csd` file for processing.
+      responses:
+        '200':
+          description: Csound processing completed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Message indicating the success of Csound processing.
+  /execute_lilypond:
+    post:
+      summary: Execute LilyPond
+      operationId: executeLilyPond
+      description: Processes an existing `.ly` file using LilyPond.
+      requestBody:
+        required: true
+        description: JSON object specifying the path to the `.ly` file for processing.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lilyPondFilePath:
+                  type: string
+                  description: Path to the existing `.ly` file for processing.
+      responses:
+        '200':
+          description: LilyPond processing completed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Message indicating the success of LilyPond processing.
+
+components:
+  schemas:
+    Script:
+      type: object
+      properties:
+        scriptId:
+          type: integer
+          description: Unique identifier for the screenplay script.
+        title:
+          type: string
+          description: Title of the screenplay script.
+        description:
+          type: string
+          description: Brief description or summary of the screenplay script.
+        author:
+          type: string
+          description: Author of the screenplay script.
+        sequence:
+          type: integer
+          description: Sequence number representing the script's order or version.
+      required:
+        - title
+        - author
+    ScriptCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        author:
+          type: string
+        sequence:
+          type: integer
+      required:
+        - title
+        - author
+    ScriptUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        author:
+          type: string
+        sequence:
+          type: integer
+    SectionHeading:
+      type: object
+      description: Represents a structural element within a script, marking the beginning of a new section. Caching via Redis optimizes retrieval performance.
+      properties:
+        headingId:
+          type: integer
+          description: Unique identifier for the Section Heading.
+        scriptId:
+          type: integer
+          description: Identifier of the script this Section Heading belongs to.
+        title:
+          type: string
+          description: Title of the Section Heading.
+        sequence:
+          type: integer
+          description: Order sequence of the Section Heading within the script.
+      required:
+        - scriptId
+        - title
+        - sequence
+    Error:
+      type: object
+      description: Common error structure for the API.
+      properties:
+        message:
+          type: string
+          description: Description of the error encountered.
+          example: "Required field missing: 'title'"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+# Update
+# Update
+# Update

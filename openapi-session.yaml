@@ -1,0 +1,266 @@
+openapi: 3.1.0
+info:
+  title: FountainAI Session and Context Management API
+  description: |
+    This API handles session management, context management, and NLU functionalities.
+  version: "2.0.0"
+
+servers:
+  - url: 'https://session.fountain.coach'
+    description: Production server for Session and Context Management API
+  - url: 'http://localhost:8080'
+    description: Development server (Docker environment)
+
+paths:
+  /characters/{characterId}/context:
+    get:
+      summary: Retrieve Character Context
+      operationId: getCharacterContext
+      description: Retrieves the current context for a specified character.
+      parameters:
+        - name: characterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Character context data.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+    put:
+      summary: Update Character Context
+      operationId: updateCharacterContext
+      description: Updates the current context for a specified character.
+      parameters:
+        - name: characterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+      responses:
+        '200':
+          description: Character context updated.
+
+  /sessions:
+    post:
+      summary: Create New Session
+      operationId: createSession
+      description: Creates a new session for the character, storing initial context data.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                characterId:
+                  type: integer
+                  description: Unique identifier of the character.
+      responses:
+        '201':
+          description: Session created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: string
+                    description: Unique identifier for the created session.
+                  expiration:
+                    type: string
+                    format: date-time
+                    description: Expiration time of the session.
+    delete:
+      summary: End Session
+      operationId: endSession
+      description: Ends the session for the character, optionally clearing session-specific context data.
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Session ended.
+
+  /sessions/{sessionId}/renew:
+    post:
+      summary: Renew Session
+      operationId: renewSession
+      description: Renews an existing session, extending its expiration.
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session renewed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: string
+                    description: Unique identifier for the renewed session.
+                  expiration:
+                    type: string
+                    format: date-time
+                    description: New expiration time of the session.
+
+  /nlu/contextual:
+    post:
+      summary: Context-Aware NLU Processing
+      operationId: processContextualNLU
+      description: Processes user input with context-aware NLU, considering the character's current context.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                characterId:
+                  type: integer
+                  description: Unique identifier of the character.
+                userInput:
+                  type: string
+                  description: The user's input text to be processed.
+      responses:
+        '200':
+          description: NLU processing result.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  intent:
+                    type: string
+                    description: Identified intent of the user input.
+                  entities:
+                    type: object
+                    description: Extracted entities from the user input.
+                    additionalProperties:
+                      type: string
+                  contextUpdates:
+                    type: object
+                    description: Suggested updates to the character's context based on the user input.
+                    additionalProperties:
+                      type: string
+
+components:
+  schemas:
+    Character:
+      type: object
+      description: Represents a character entity within the screenplay application, containing details such as name, description, and associated script IDs. Caching via Redis optimizes retrieval performance.
+      properties:
+        characterId:
+          type: integer
+          description: Unique identifier for the character.
+          example: 1
+        name:
+          type: string
+          description: Name of the character.
+          example: "Juliet"
+        description:
+          type: string
+          description: A brief description of the character and their role within the screenplay.
+          example: "The heroine of Romeo and Juliet."
+        scriptIds:
+          type: array
+          description: Array of script IDs where the character appears, can be empty if the character is not currently part of any script.
+          items:
+            type: integer
+          example: [2, 5, 7]
+        paraphrases:
+          type: array
+          description: Array of paraphrases linked to this character, each with its own text and commentary.
+          items:
+            $ref: '#/components/schemas/Paraphrase'
+        preferences:
+          type: object
+          description: User-specific preferences and settings.
+          additionalProperties:
+            type: string
+        history:
+          type: array
+          description: List of recent interactions or accessed scripts.
+          items:
+            type: string
+        currentContext:
+          type: object
+          description: Current context of the character, including session-specific data.
+          additionalProperties:
+            type: string
+      required:
+        - name
+    CharacterCreateRequest:
+      type: object
+      description: Schema defining the structure required to create a new character, including name and optionally a description.
+      properties:
+        name:
+          type: string
+          description: Name of the new character.
+          example: "Juliet"
+        description:
+          type: string
+          description: Description of the new character, outlining their role and significance.
+          example: "The heroine of Romeo and Juliet."
+      required:
+        - name
+    Paraphrase:
+      type: object
+      description: Represents a paraphrased version of a script element (e.g., action), including textual paraphrase and commentary on the connection to the original. Redis caching improves retrieval times.
+      required:
+        - originalId
+        - text
+        - commentary
+      properties:
+        paraphraseId:
+          type: integer
+          format: int64
+          description: The unique identifier for the Paraphrase, automatically generated upon creation.
+        originalId:
+          type: integer
+          description: The ID of the original action to which this paraphrase is linked.
+        text:
+          type: string
+          description: The paraphrased text of the original action.
+        commentary:
+          type: string
+          description: An explanatory note on why the paraphrase is linked to the original action.
+    Error:
+      type: object
+      description: Common error structure for the API.
+      properties:
+        message:
+          type: string
+          description: Description of the error encountered.
+          example: "Required field missing: 'title'"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+# Update
+# Update
+# Update
