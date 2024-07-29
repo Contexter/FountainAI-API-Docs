@@ -1,14 +1,122 @@
+Yes, you can fetch the contents of the linked files and display them inline in a more sophisticated manner, creating a seamless navigation menu with expandable sections. Below is an example of how you can do this using HTML, CSS, and JavaScript.
+
+### HTML
+```html
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>API Documentation</title>
-  </head>
-  <body>
-    <h1>API Documentation</h1>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FountainAI API Documentation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px 10px;
+      text-align: center;
+    }
+    main {
+      margin: 20px;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+      color: #333;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 10px 0;
+    }
+    a {
+      text-decoration: none;
+      color: #4CAF50;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .content-section {
+      display: none;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FountainAI API Documentation</h1>
+  </header>
+  <main>
+    <h2>Available API Documentation</h2>
     <ul>
-      <li><a href="character.html">Character API</a></li>
-      <li><a href="core.html">Core API</a></li>
-      <li><a href="session.html">Session API</a></li>
+      <li><a onclick="toggleContent('character-content')">Character API</a>
+        <div id="character-content" class="content-section"></div>
+      </li>
+      <li><a onclick="toggleContent('core-content')">Core API</a>
+        <div id="core-content" class="content-section"></div>
+      </li>
+      <li><a onclick="toggleContent('session-content')">Session API</a>
+        <div id="session-content" class="content-section"></div>
+      </li>
     </ul>
-  </body>
+  </main>
+
+  <script>
+    function fetchContent(url, elementId) {
+      fetch(url)
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById(elementId).innerHTML = data;
+        })
+        .catch(error => console.error('Error fetching content:', error));
+    }
+
+    function toggleContent(elementId) {
+      const section = document.getElementById(elementId);
+      if (section.style.display === 'none' || section.style.display === '') {
+        section.style.display = 'block';
+        if (!section.innerHTML) {
+          const urlMap = {
+            'character-content': 'character.html',
+            'core-content': 'core.html',
+            'session-content': 'session.html'
+          };
+          fetchContent(urlMap[elementId], elementId);
+        }
+      } else {
+        section.style.display = 'none';
+      }
+    }
+
+    // Pre-fetch content on load
+    window.onload = () => {
+      fetchContent('character.html', 'character-content');
+      fetchContent('core.html', 'core-content');
+      fetchContent('session.html', 'session-content');
+    };
+  </script>
+</body>
 </html>
+```
+
+### Explanation
+1. **HTML Structure**: The HTML structure includes a header, a main section with links, and expandable content sections for each API.
+
+2. **CSS Styling**: Basic styling is provided for the page, header, and links. The `.content-section` class is initially hidden.
+
+3. **JavaScript Functions**:
+   - `fetchContent(url, elementId)`: Fetches the content of the HTML files and inserts it into the respective div element.
+   - `toggleContent(elementId)`: Toggles the display of the content sections. It also fetches the content if it's not already loaded.
+   - The `window.onload` function pre-fetches the content for better performance.
+
+This approach dynamically fetches and displays the content inline, creating a seamless navigation experience for users visiting your API documentation landing page.
