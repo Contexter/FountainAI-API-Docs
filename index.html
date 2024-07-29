@@ -1,106 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FountainAI API Documentation</title>
+  <title>API Documentation</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
       margin: 0;
       padding: 0;
     }
-    header {
-      background-color: #4CAF50;
-      color: white;
-      padding: 20px 10px;
+    .header {
+      background-color: #f8f8f8;
+      padding: 10px 0;
+      border-bottom: 1px solid #e7e7e7;
       text-align: center;
     }
-    main {
-      margin: 20px;
-      padding: 20px;
-      background: white;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    h1, h2 {
-      color: #333;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      margin: 10px 0;
-    }
-    a {
+    .header a {
+      margin: 0 15px;
       text-decoration: none;
-      color: #4CAF50;
-      font-size: 18px;
-      cursor: pointer;
+      color: #333;
+      font-weight: bold;
     }
-    a:hover {
-      text-decoration: underline;
+    .header a.active {
+      color: #0056b3;
     }
-    .content-section {
-      display: none;
-      margin-top: 10px;
+    .content {
+      padding: 20px;
+    }
+    iframe {
+      width: 100%;
+      height: 90vh;
+      border: none;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>FountainAI API Documentation</h1>
-  </header>
-  <main>
-    <h2>Available API Documentation</h2>
-    <ul>
-      <li><a onclick="toggleContent('character-content')">Character API</a>
-        <div id="character-content" class="content-section"></div>
-      </li>
-      <li><a onclick="toggleContent('core-content')">Core API</a>
-        <div id="core-content" class="content-section"></div>
-      </li>
-      <li><a onclick="toggleContent('session-content')">Session API</a>
-        <div id="session-content" class="content-section"></div>
-      </li>
-    </ul>
-  </main>
-
+  <div class="header">
+    <a href="character.html" class="active">Character API</a>
+    <a href="core.html">Core API</a>
+    <a href="session.html">Session API</a>
+  </div>
+  <div class="content">
+    <iframe src="character.html"></iframe>
+  </div>
   <script>
-    function fetchContent(url, elementId) {
-      fetch(url)
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById(elementId).innerHTML = data;
-        })
-        .catch(error => console.error('Error fetching content:', error));
-    }
-
-    function toggleContent(elementId) {
-      const section = document.getElementById(elementId);
-      if (section.style.display === 'none' || section.style.display === '') {
-        section.style.display = 'block';
-        if (!section.innerHTML) {
-          const urlMap = {
-            'character-content': 'character.html',
-            'core-content': 'core.html',
-            'session-content': 'session.html'
-          };
-          fetchContent(urlMap[elementId], elementId);
-        }
-      } else {
-        section.style.display = 'none';
-      }
-    }
-
-    // Pre-fetch content on load
-    window.onload = () => {
-      fetchContent('character.html', 'character-content');
-      fetchContent('core.html', 'core-content');
-      fetchContent('session.html', 'session-content');
-    };
+    // Update iframe src and active link on click
+    document.querySelectorAll('.header a').forEach(link => {
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        document.querySelector('iframe').src = this.getAttribute('href');
+        document.querySelectorAll('.header a').forEach(a => a.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
   </script>
 </body>
 </html>
-
