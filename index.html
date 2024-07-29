@@ -1,7 +1,3 @@
-Yes, you can fetch the contents of the linked files and display them inline in a more sophisticated manner, creating a seamless navigation menu with expandable sections. Below is an example of how you can do this using HTML, CSS, and JavaScript.
-
-### HTML
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -107,16 +103,4 @@ Yes, you can fetch the contents of the linked files and display them inline in a
   </script>
 </body>
 </html>
-```
 
-### Explanation
-1. **HTML Structure**: The HTML structure includes a header, a main section with links, and expandable content sections for each API.
-
-2. **CSS Styling**: Basic styling is provided for the page, header, and links. The `.content-section` class is initially hidden.
-
-3. **JavaScript Functions**:
-   - `fetchContent(url, elementId)`: Fetches the content of the HTML files and inserts it into the respective div element.
-   - `toggleContent(elementId)`: Toggles the display of the content sections. It also fetches the content if it's not already loaded.
-   - The `window.onload` function pre-fetches the content for better performance.
-
-This approach dynamically fetches and displays the content inline, creating a seamless navigation experience for users visiting your API documentation landing page.
