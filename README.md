@@ -31,13 +31,10 @@ The implementation of C3 within FountainAI involves several key components:
 
 3. **API Integration and Context Management**: The APIs are designed to manage specific aspects of the system while sharing a common goal of maintaining context. Redis caching and RedisAI middleware support efficient data retrieval and recommendation.
 
-### API Documentation
+### API Documentation at 
 
-- [Core Story Management API](https://Contexter.github.io/FountainAI-API-Docs/core.html)
-- [Character Management API](https://Contexter.github.io/FountainAI-API-Docs/character.html)
-- [Session and Context Management API](https://Contexter.github.io/FountainAI-API-Docs/session.html)
-- [Central Sequence Service API](https://Contexter.github.io/FountainAI-API-Docs/central_sequence.html)
-- [Story Factory API](https://Contexter.github.io/FountainAI-API-Docs/story_factory.html)
+- [Docs.Fountain.Coach ](http://docs.fountain.coach)
+
 
 ### Conclusion
 
