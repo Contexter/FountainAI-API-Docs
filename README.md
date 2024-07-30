@@ -8,7 +8,7 @@ This paper presents Continuous Contextual Consistency (C3), a framework to enhan
 
 Generative language models like GPT-4 have advanced natural language processing, enabling sophisticated conversational agents. However, maintaining context over extended interactions remains challenging. Continuous Contextual Consistency (C3) aims to embed long-term memory into AI systems, ensuring coherent and contextually relevant interactions.
 
-FountainAI, a platform for managing storytelling elements such as characters, actions, and dialogues, is ideal for demonstrating C3. This paper details the development and integration of C3 within FountainAI, **focusing on user interactions represented as characters in a narrative**.
+FountainAI, a platform for managing storytelling elements such as characters, actions, and dialogues, is ideal for demonstrating C3. This paper details the development and integration of C3 within FountainAI, focusing on user interactions represented as characters in a narrative.
 
 #### Background
 
@@ -20,29 +20,25 @@ C3 addresses this by introducing a structured memory system that tracks user int
 
 The implementation of C3 within FountainAI involves several key components:
 
-1. **Subdomain-Specific APIs**: The system is divided into three main APIs, each responsible for distinct functionalities:
-   - Core Story Management API ([Link to OpenAPI Documentation](https://Contexter.github.io/FountainAI-API-Docs/core.html))
-   - Character Management API ([Link to OpenAPI Documentation](https://Contexter.github.io/FountainAI-API-Docs/character.html))
-   - Session and Context Management API ([Link to OpenAPI Documentation](https://Contexter.github.io/FountainAI-API-Docs/session.html))
+1. **Subdomain-Specific APIs**: The system is divided into several main APIs, each responsible for distinct functionalities:
+   - Core Story Management API
+   - Character Management API
+   - Session and Context Management API
+   - Central Sequence Service API
+   - Story Factory API
 
 2. **Persistent Memory and Context Tracking**: Each user interaction is modeled as a character within FountainAI, allowing for detailed tracking of preferences, history, and current context.
 
 3. **API Integration and Context Management**: The APIs are designed to manage specific aspects of the system while sharing a common goal of maintaining context. Redis caching and RedisAI middleware support efficient data retrieval and recommendation.
 
-#### Core Story Management API
+### API Documentation
 
-The Core Story Management API handles story-related functionalities, including creating, retrieving, updating, and deleting stories. It also manages section headings and orchestration settings for generating files (Csound, LilyPond, MIDI) and executing orchestration processes.
-
-#### Character Management API
-
-The Character Management API manages characters, their actions, spoken words, and paraphrases. This API allows the creation and retrieval of character-related data, ensuring each character's actions and dialogues are contextually relevant and coherent over time.
-
-#### Session and Context Management API
-
-The Session and Context Management API handles session creation, renewal, and termination. It tracks the current context of characters, ensuring interactions remain consistent and context-aware. This API also processes user input with context-aware Natural Language Understanding (NLU) capabilities.
+- [Core Story Management API](https://Contexter.github.io/FountainAI-API-Docs/core.html)
+- [Character Management API](https://Contexter.github.io/FountainAI-API-Docs/character.html)
+- [Session and Context Management API](https://Contexter.github.io/FountainAI-API-Docs/session.html)
+- [Central Sequence Service API](https://Contexter.github.io/FountainAI-API-Docs/central_sequence.html)
+- [Story Factory API](https://Contexter.github.io/FountainAI-API-Docs/story_factory.html)
 
 ### Conclusion
 
 By implementing C3 through structured, subdomain-specific APIs, FountainAI effectively manages long-term context and memory, enhancing user interactions and maintaining narrative coherence. This practical approach demonstrates how AI systems can be more advanced and user-friendly by integrating long-term memory.
-
----
