@@ -1,0 +1,374 @@
+openapi: 3.1.0
+info:
+  title: Session and Context Management API
+  description: >
+    This API manages the creation, retrieval, updating, and deletion of sessions and context data, ensuring logical order through sequence numbers.
+  version: 1.0.0
+servers:
+  - url: https://sessioncontext.fountain.coach
+    description: Production server for Session and Context Management API
+  - url: http://localhost:8080
+    description: Development server
+paths:
+  /sessions:
+    post:
+      summary: Create Session
+      operationId: createSession
+      description: Creates a new session for a character.
+      requestBody:
+        required: true
+        description: Details of the session to be created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionRequest'
+            examples:
+              example:
+                value:
+                  characterId: 1
+                  contextData:
+                    mood: "longing"
+                    location: "Capulet's mansion balcony"
+      responses:
+        '201':
+          description: Session successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+              examples:
+                example:
+                  value:
+                    sessionId: 1
+                    sequence: 1
+  /sessions/{sessionId}:
+    get:
+      summary: Retrieve Session
+      operationId: getSession
+      description: Retrieves details of a specific session.
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the session.
+      responses:
+        '200':
+          description: Session details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+              examples:
+                example:
+                  value:
+                    sessionId: 1
+                    characterId: 1
+                    contextData:
+                      mood: "longing"
+                      location: "Capulet's mansion balcony"
+                    sequence: 1
+        '404':
+          description: Session not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example:
+                  value:
+                    message: "Session not found."
+  /sessions/{sessionId}:
+    put:
+      summary: Update Session
+      operationId: updateSession
+      description: Updates details of an existing session.
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the session.
+      requestBody:
+        required: true
+        description: Updated details of the session.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionRequest'
+            examples:
+              example:
+                value:
+                  contextData:
+                    mood: "happy"
+                    location: "Capulet's mansion garden"
+      responses:
+        '200':
+          description: Session updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+              examples:
+                example:
+                  value:
+                    sessionId: 1
+                    sequence: 2
+        '404':
+          description: Session not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example:
+                  value:
+                    message: "Session not found."
+  /sessions/{sessionId}:
+    delete:
+      summary: Delete Session
+      operationId: deleteSession
+      description: Deletes a specific session.
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the session.
+      responses:
+        '200':
+          description: Session deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                example:
+                  value:
+                    message: "Session deleted successfully."
+        '404':
+          description: Session not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example:
+                  value:
+                    message: "Session not found."
+  /contexts:
+    post:
+      summary: Create Context
+      operationId: createContext
+      description: Creates new context data for a character.
+      requestBody:
+        required: true
+        description: Details of the context data to be created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContextRequest'
+            examples:
+              example:
+                value:
+                  characterId: 1
+                  contextData:
+                    mood: "longing"
+                    location: "Capulet's mansion balcony"
+      responses:
+        '201':
+          description: Context data successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextResponse'
+              examples:
+                example:
+                  value:
+                    contextId: 1
+                    sequence: 1
+  /contexts/{contextId}:
+    get:
+      summary: Retrieve Context
+      operationId: getContext
+      description: Retrieves context data for a specific character.
+      parameters:
+        - name: contextId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the context data.
+      responses:
+        '200':
+          description: Context data retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextResponse'
+              examples:
+                example:
+                  value:
+                    contextId: 1
+                    characterId: 1
+                    contextData:
+                      mood: "longing"
+                      location: "Capulet's mansion balcony"
+                    sequence: 1
+        '404':
+          description: Context data not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example:
+                  value:
+                    message: "Context data not found."
+  /contexts/{contextId}:
+    put:
+      summary: Update Context
+      operationId: updateContext
+      description: Updates context data for a specific character.
+      parameters:
+        - name: contextId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the context data.
+      requestBody:
+        required: true
+        description: Updated context data.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContextRequest'
+            examples:
+              example:
+                value:
+                  contextData:
+                    mood: "happy"
+                    location: "Capulet's mansion garden"
+      responses:
+        '200':
+          description: Context data updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextResponse'
+              examples:
+                example:
+                  value:
+                    contextId: 1
+                    sequence: 2
+        '404':
+          description: Context data not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example:
+                  value:
+                    message: "Context data not found."
+  /contexts/{contextId}:
+    delete:
+      summary: Delete Context
+      operationId: deleteContext
+      description: Deletes context data for a specific character.
+      parameters:
+        - name: contextId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Unique identifier of the context data.
+      responses:
+        '200':
+          description: Context data deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              examples:
+                example:
+                  value:
+                    message: "Context data deleted successfully."
+        '404':
+          description: Context data not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                example:
+                  value:
+                    message: "Context data not found."
+components:
+  schemas:
+    SessionRequest:
+      type: object
+      properties:
+        characterId:
+          type: integer
+          description: Unique identifier of the character.
+        contextData:
+          type: object
+          description: Context data for the session.
+      required: [characterId, contextData]
+    SessionResponse:
+      type: object
+      properties:
+        sessionId:
+          type: integer
+          description: Unique identifier of the session.
+        characterId:
+          type: integer
+          description: Unique identifier of the character.
+        contextData:
+          type: object
+          description: Context data for the session.
+        sequence:
+          type: integer
+          description: Sequence number of the session.
+    ContextRequest:
+      type: object
+      properties:
+        characterId:
+          type: integer
+          description: Unique identifier of the character.
+        contextData:
+          type: object
+          description: Context data for the character.
+      required: [characterId, contextData]
+    ContextResponse:
+      type: object
+      properties:
+        contextId:
+          type: integer
+          description: Unique identifier of the context data.
+        characterId:
+          type: integer
+          description: Unique identifier of the character.
+        contextData:
+          type: object
+          description: Context data for the character.
+        sequence:
+          type: integer
+          description: Sequence number of the context data.
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message.
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Description of the error encountered.
