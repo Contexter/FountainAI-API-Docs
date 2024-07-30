@@ -3,17 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation</title>
+    <title>FountainAI API Documentation</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         .header {
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-around;
             align-items: center;
             background-color: #f4f4f4;
             padding: 10px;
+            margin-bottom: 20px;
         }
         .header a {
             text-decoration: none;
@@ -36,35 +47,53 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <a href="character.html" id="characterLink" class="active">Character API</a>
-        <a href="core.html" id="coreLink">Core API</a>
-        <a href="session.html" id="sessionLink">Session API</a>
+    <div class="container">
+        <div class="header">
+            <a href="central-sequence.html" id="centralSequenceLink" class="active">Central Sequence Service</a>
+            <a href="character-management.html" id="characterManagementLink">Character Management</a>
+            <a href="core-script-management.html" id="coreScriptManagementLink">Core Script Management</a>
+            <a href="session-and-context.html" id="sessionAndContextLink">Session and Context</a>
+            <a href="story-factory.html" id="storyFactoryLink">Story Factory</a>
+        </div>
+        <iframe src="central-sequence.html" id="contentFrame"></iframe>
     </div>
-    <iframe src="character.html" id="contentFrame"></iframe>
 
     <script>
-        const characterLink = document.getElementById('characterLink');
-        const coreLink = document.getElementById('coreLink');
-        const sessionLink = document.getElementById('sessionLink');
+        const centralSequenceLink = document.getElementById('centralSequenceLink');
+        const characterManagementLink = document.getElementById('characterManagementLink');
+        const coreScriptManagementLink = document.getElementById('coreScriptManagementLink');
+        const sessionAndContextLink = document.getElementById('sessionAndContextLink');
+        const storyFactoryLink = document.getElementById('storyFactoryLink');
         const contentFrame = document.getElementById('contentFrame');
 
-        characterLink.addEventListener('click', function(event) {
+        centralSequenceLink.addEventListener('click', function(event) {
             event.preventDefault();
-            contentFrame.src = 'character.html';
-            setActiveLink(characterLink);
+            contentFrame.src = 'central-sequence.html';
+            setActiveLink(centralSequenceLink);
         });
 
-        coreLink.addEventListener('click', function(event) {
+        characterManagementLink.addEventListener('click', function(event) {
             event.preventDefault();
-            contentFrame.src = 'core.html';
-            setActiveLink(coreLink);
+            contentFrame.src = 'character-management.html';
+            setActiveLink(characterManagementLink);
         });
 
-        sessionLink.addEventListener('click', function(event) {
+        coreScriptManagementLink.addEventListener('click', function(event) {
             event.preventDefault();
-            contentFrame.src = 'session.html';
-            setActiveLink(sessionLink);
+            contentFrame.src = 'core-script-management.html';
+            setActiveLink(coreScriptManagementLink);
+        });
+
+        sessionAndContextLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            contentFrame.src = 'session-and-context.html';
+            setActiveLink(sessionAndContextLink);
+        });
+
+        storyFactoryLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            contentFrame.src = 'story-factory.html';
+            setActiveLink(storyFactoryLink);
         });
 
         function setActiveLink(activeLink) {
@@ -77,3 +106,4 @@
     </script>
 </body>
 </html>
+
