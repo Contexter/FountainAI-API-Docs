@@ -1,25 +1,23 @@
-### Core Script Management API Documentation
+### Central Sequence Service API Documentation
 
 ### Overview
 
-The Core Script Management API is responsible for managing scripts, section headings, and transitions. It integrates with the Central Sequence Service to ensure that all elements follow a logical order and supports reordering and versioning.
+The Central Sequence Service is a dedicated system that assigns, manages, and updates sequence numbers for various elements within a story (e.g., scripts, sections, characters, actions, spoken words). It ensures that everything happens in a logical order and maintains version history.
 
 ### Key Features
 
-- **Script Management**: Create, update, and list scripts.
-- **Section Headings**: Add, update, and reorder section headings within scripts.
-- **Transitions**: Manage transitions between sections.
-- **Integration with Central Sequence Service**: Ensures logical order and version control of elements.
-- **Reordering**: Allows changing the order of elements within a script.
-- **Versioning**: Maintains a history of modifications to elements.
+- **Sequence Numbers**: Unique identifiers that determine the order of elements within a story.
+- **Reordering**: Changing the order of elements by updating their sequence numbers.
+- **Versioning**: Tracking changes to elements over time, allowing you to maintain a history of modifications.
+- **Cascading Updates**: Ensuring that when one element's order or version is updated, all related elements are updated accordingly to maintain consistency.
 
 ### Data Flow and Integration
 
-The Core Script Management API requests sequence numbers from the Central Sequence Service when creating or updating elements. This integration ensures that all elements have unique and sequential numbers, maintaining a logical flow within the story.
+The Central Sequence Service works by assigning sequence numbers to elements created by various APIs (**Core Script Management**, **Character Management**, **Session and Context Management**, **Story Factory**). It ensures that all elements follow a logical order and provides functionalities for reordering and versioning.
 
 ### Example of Usage
 
-The following example shows how the Core Script Management API interacts with the Central Sequence Service to create a script and add section headings.
+The following example json object shows how a dialogue exchange between characters within an established sequence is managed by the Central Sequence Service. Each element is assigned a sequence number to ensure a natural and logical reading flow.
 
 ```json
 {
@@ -34,195 +32,139 @@ The following example shows how the Core Script Management API interacts with th
       "title": "Act 1, Scene 1",
       "sequence": 1
     }
-  ]
+  ],
+  "story": [
+    {
+      "sequence": 1,
+      "character": {
+        "characterId": 1,
+        "name": "Juliet",
+        "description": "The heroine of Romeo and Juliet."
+      },
+      "action": {
+        "actionId": 1,
+        "description": "Juliet stands on the balcony, looking out into the night."
+      },
+      "spokenWord": {
+        "dialogueId": 1,
+        "text": "O Romeo, Romeo! wherefore art thou Romeo?"
+      },
+      "context": {
+        "contextId": 1,
+        "characterId": 1,
+        "data": {
+          "mood": "longing",
+          "location": "Capulet's mansion balcony"
+        }
+      }
+    },
+    {
+      "sequence": 2,
+      "character": {
+        "characterId": 2,
+        "name": "Romeo",
+        "description": "The hero of Romeo and Juliet."
+      },
+      "action": {
+        "actionId": 2,
+        "description": "Romeo steps out from the shadows below the balcony."
+      },
+      "spokenWord": {
+        "dialogueId": 2,
+        "text": "By a name I know not how to tell thee who I am: My name, dear saint, is hateful to myself, Because it is an enemy to thee."
+      },
+      "context": {
+        "contextId": 2,
+        "characterId": 2,
+        "data": {
+          "mood": "desperate",
+          "location": "Below Juliet's balcony"
+        }
+      }
+    },
+    {
+      "sequence": 3,
+      "character": {
+        "characterId": 1,
+        "name": "Juliet",
+        "description": "The heroine of Romeo and Juliet."
+      },
+      "action": {
+        "actionId": 3,
+        "description": "Juliet leans over the balcony, reaching out towards Romeo."
+      },
+      "spokenWord": {
+        "dialogueId": 3,
+        "text": "What’s in a name? That which we call a rose By any other name would smell as sweet."
+      },
+      "context": {
+        "contextId": 3,
+        "characterId": 1,
+        "data": {
+          "mood": "curious",
+          "location": "Capulet's mansion balcony"
+        }
+      }
+    }
+  ],
+  "orchestration": {
+    "csoundFilePath": "/files/sound.csd",
+    "lilyPondFilePath": "/files/sheet.ly",
+    "midiFilePath": "/files/music.mid"
+  }
 }
 ```
 
-### Core Script Management API Specification
+### Central Sequence Service API Specification
 
-Below is the full OpenAPI specification for the Core Script Management API, ensuring that it integrates with the Central Sequence Service.
+Below is the full OpenAPI specification for the Central Sequence Service, ensuring that all necessary information from the FountainAI APIs is integrated.
 
 ```yaml
 openapi: 3.1.0
 info:
-  title: FountainAI Core Script Management API
+  title: Central Sequence Service API
   description: >
-    This API manages scripts, section headings, and transitions. It integrates with the Central Sequence Service to ensure all elements follow a logical order and supports reordering and versioning.
-  version: 2.0.0
+    This API manages the assignment and updating of sequence numbers for various elements within a story, ensuring logical order and consistency.
+  version: 1.0.0
 servers:
-  - url: https://scriptmanagement.fountain.coach
-    description: Production server for Core Script Management API
+  - url: https://centralsequence.fountain.coach
+    description: Production server for Central Sequence Service API
   - url: http://localhost:8080
     description: Development server
 paths:
-  /scripts:
+  /sequence:
     post:
-      summary: Create Script
-      operationId: createScript
-      description: Creates a new script, obtaining a sequence number from the Central Sequence Service.
+      summary: Generate Sequence Number
+      operationId: generateSequenceNumber
+      description: Generates a new sequence number for a specified element type.
       requestBody:
         required: true
-        description: Details of the script to be created.
+        description: Details of the element requesting a sequence number.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScriptRequest'
+              $ref: '#/components/schemas/SequenceRequest'
             examples:
               example:
                 value:
-                  title: "Romeo and Juliet"
-                  author: "William Shakespeare"
-                  description: "A tale of two star-crossed lovers."
+                  elementType: script
+                  elementId: 1
       responses:
         '201':
-          description: Script created successfully.
+          description: Sequence number successfully generated.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ScriptResponse'
+                $ref: '#/components/schemas/SequenceResponse'
               examples:
                 example:
                   value:
-                    scriptId: 1
                     sequenceNumber: 1
-    get:
-      summary: List Scripts
-      operationId: listScripts
-      description: Retrieves all scripts.
-      responses:
-        '200':
-          description: List of scripts.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Script'
-  /scripts/{scriptId}:
-    put:
-      summary: Update Script
-      operationId: updateScript
-      description: Updates an existing script.
-      parameters:
-        - name: scriptId
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: Unique identifier of the script to update.
-      requestBody:
-        required: true
-        description: Details of the script to be updated.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ScriptUpdateRequest'
-            examples:
-              example:
-                value:
-                  title: "Romeo and Juliet - Updated"
-                  author: "William Shakespeare"
-                  description: "An updated tale of two star-crossed lovers."
-      responses:
-        '200':
-          description: Script updated successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ScriptResponse'
-              examples:
-                example:
-                  value:
-                    scriptId: 1
-                    sequenceNumber: 1
-  /scripts/{scriptId}/sections:
+  /sequence/reorder:
     post:
-      summary: Add Section Heading
-      operationId: addSectionHeading
-      description: Adds a new section heading to a script, obtaining a sequence number from the Central Sequence Service.
-      parameters:
-        - name: scriptId
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: Unique identifier of the script to add the section heading to.
-      requestBody:
-        required: true
-        description: Details of the section heading to be added.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SectionHeadingRequest'
-            examples:
-              example:
-                value:
-                  title: "Act 1, Scene 1"
-      responses:
-        '201':
-          description: Section heading added successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SectionHeadingResponse'
-              examples:
-                example:
-                  value:
-                    headingId: 1
-                    scriptId: 1
-                    sequenceNumber: 2
-    put:
-      summary: Update Section Heading
-      operationId: updateSectionHeading
-      description: Updates an existing section heading.
-      parameters:
-        - name: scriptId
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: Unique identifier of the script the section heading belongs to.
-        - name: headingId
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: Unique identifier of the section heading to update.
-      requestBody:
-        required: true
-        description: Details of the section heading to be updated.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SectionHeadingUpdateRequest'
-            examples:
-              example:
-                value:
-                  title: "Act 1, Scene 1 - Updated"
-      responses:
-        '200':
-          description: Section heading updated successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SectionHeadingResponse'
-              examples:
-                example:
-                  value:
-                    headingId: 1
-                    scriptId: 1
-                    sequenceNumber: 2
-    post:
-      summary: Reorder Section Headings
-      operationId: reorderSectionHeadings
-      description: Reorders section headings within a script by updating their sequence numbers.
-      parameters:
-        - name: scriptId
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: Unique identifier of the script to reorder section headings for.
+      summary: Reorder Elements
+      operationId: reorderElements
+      description: Reorders elements by updating their sequence numbers.
       requestBody:
         required: true
         description: Details of the reordering request.
@@ -233,14 +175,15 @@ paths:
             examples:
               example:
                 value:
+                  elementType: section
                   elements:
-                    - headingId: 1
+                    - elementId: 1
                       newSequence: 2
-                    - headingId: 2
+                    - elementId: 2
                       newSequence: 1
       responses:
         '200':
-          description: Section headings reordered successfully.
+          description: Elements successfully reordered.
           content:
             application/json:
               schema:
@@ -248,104 +191,92 @@ paths:
               examples:
                 example:
                   value:
-                    message: "Reorder successful."
+                    message: Reorder successful.
+  /sequence/version:
+    post:
+      summary: Create New Version
+      operationId: createVersion
+      description: Creates a new version of an element.
+      requestBody:
+        required: true
+        description: Details of the versioning request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VersionRequest'
+            examples:
+              example:
+                value:
+                  elementType: dialogue
+                  elementId: 1
+                  newVersionData:
+                    text: "O Romeo, Romeo! wherefore art thou Romeo?"
+      responses:
+        '201':
+          description: New version successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionResponse'
+              examples:
+                example:
+                  value:
+                    versionNumber: 2
 components:
   schemas:
-    ScriptRequest:
+    SequenceRequest:
       type: object
       properties:
-        title:
+        elementType:
           type: string
-          description: Title of the script.
-        author:
-          type: string
-          description: Author of the script.
-        description:
-          type: string
-          description: Brief description of the script.
-      required:
-        - title
-    ScriptResponse:
-      type: object
-      properties:
-        scriptId:
+          description: Type of the element (e.g., script, section, character, action, spokenWord).
+        elementId:
           type: integer
-          description: Unique identifier of the script.
+          description: Unique identifier of the element.
+      required: [elementType, elementId]
+    SequenceResponse:
+      type: object
+      properties:
         sequenceNumber:
           type: integer
-          description: Sequence number assigned to the script.
-    Script:
-      type: object
-      properties:
-        scriptId:
-          type: integer
-          description: Unique identifier of the script.
-        title:
-          type: string
-          description: Title of the script.
-        author:
-          type: string
-          description: Author of the script.
-        description:
-          type: string
-          description: Brief description of the script.
-        sequenceNumber:
-          type: integer
-          description: Sequence number assigned to the script.
-    ScriptUpdateRequest:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Title of the script.
-        author:
-          type: string
-          description: Author of the script.
-        description:
-          type: string
-          description: Brief description of the script.
-    SectionHeadingRequest:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Title of the section heading.
-      required:
-        - title
-    SectionHeadingResponse:
-      type: object
-      properties:
-        headingId:
-          type: integer
-          description: Unique identifier of the section heading.
-        scriptId:
-          type: integer
-          description: Unique identifier of the script.
-        sequenceNumber:
-          type: integer
-          description: Sequence number assigned to the section heading.
-    SectionHeadingUpdateRequest:
-      type: object
-      properties:
-        title:
-          type: string
-          description: Title of the section heading.
+          description: The generated sequence number.
     ReorderRequest:
       type: object
       properties:
+        elementType:
+          type: string
+          description: Type of elements being reordered.
         elements:
           type: array
           items:
             type: object
             properties:
-              headingId:
+              elementId:
                 type: integer
-                description: Unique identifier of the section heading.
+                description: Unique identifier of the element.
               newSequence:
                 type: integer
-                description: New sequence number for the section heading.
-      required:
-        - elements
+                description: New sequence number for the element.
+      required: [elementType, elements]
+    VersionRequest:
+      type: object
+      properties:
+        elementType:
+          type: string
+          description: Type of the element (e.g., script, section, character, action, spokenWord).
+        elementId:
+          type: integer
+          description: Unique identifier of the element.
+        newVersionData:
+          type: object
+          description: Data for the new version of the element.
+      required: [elementType, elementId, newVersionData]
+    VersionResponse:
+      type: object
+      properties:
+        versionNumber:
+          type: integer
+          description: The version number of the new version.
     SuccessResponse:
       type: object
       properties:
@@ -513,9 +444,7 @@ If you start from somewhere else, such as creating a snippet of dialogue, a char
 #### Step 1: Create a Character
 
 1. **Request**: Create a character named "Romeo".
-   - **Sequence Request**: The Character Management API requests a sequence number from the Central
-
- Sequence Service.
+   - **Sequence Request**: The Character Management API requests a sequence number from the Central Sequence Service.
 2. **Response**: Character "Romeo" is created with sequence number 1.
 
 #### Step 2: Add a Snippet of Dialogue
@@ -553,5 +482,3 @@ No matter the order in which elements are created, each element is assigned a se
 ### Conclusion
 
 The Central Sequence Service ensures that all elements, regardless of the order in which they are created, are given unique and sequential numbers. This guarantees a coherent and logical narrative flow when assembled by the Story Factory API, maintaining the integrity and readability of the story.
-
-This documentation now includes detailed breakdowns, examples, and the YAML version of the OpenAPI specification for the **Core Script Management API**, ensuring it follows the format used for the Central Sequence Service. We will follow a similar approach for the other APIs (Character Management API, Session and Context Management API, and Story Factory API).
