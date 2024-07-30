@@ -167,6 +167,7 @@ paths:
                     headingId: 1
                     scriptId: 1
                     sequenceNumber: 2
+  /scripts/{scriptId}/sections/reorder:
     post:
       summary: Reorder Section Headings
       operationId: reorderSectionHeadings
