@@ -1,0 +1,5 @@
+name: Commit and Push Changes
+description: Commit the updated OpenAPI files and push to the branch.
+runs:
+  using: 'node12'
+  main: 'index.js'

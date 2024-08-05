@@ -1,0 +1,51 @@
+name: Update OpenAPI Documentation
+
+on:
+  push:
+    branches:
+      - update-api
+    paths:
+      - 'api-insert*.yaml'
+
+jobs:
+  update-openapi:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install -g @redocly/cli @apidevtools/swagger-parser yq
+
+      - name: Load and parse API insert file
+        id: load-parse
+        run: |
+          api_insert_file=
+          api_insert=
+          target_file=
+          path=
+          route=
+          components=
+
+          echo "target-file=$target_file" >> $GITHUB_ENV
+          echo "path=$path" >> $GITHUB_ENV
+          echo "route=$route" >> $GITHUB_ENV
+          echo "components=$components" >> $GITHUB_ENV
+
+      - name: Update OpenAPI files
+        run: node ./.github/actions/update-openapi-files/index.js
+
+      - name: Validate OpenAPI files
+        run: node ./.github/actions/validate-openapi-files/index.js
+
+      - name: Generate documentation
+        run: node ./.github/actions/generate-docs/index.js
+
+      - name: Commit and push changes
+        run: node ./.github/actions/commit-push-changes/index.js

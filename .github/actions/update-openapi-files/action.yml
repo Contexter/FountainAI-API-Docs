@@ -1,0 +1,20 @@
+name: Update OpenAPI Files
+description: Update OpenAPI files with the new route and components.
+runs:
+  using: 'node12'
+  main: 'index.js'
+inputs:
+
+
+  api-insert-path:
+    description: 'Path for the new API route'
+    required: true
+  api-insert-route:
+    description: 'Route details for the new API route'
+    required: true
+  api-insert-components:
+    description: 'Components details for the new API route'
+    required: true
+  target-file:
+    description: 'The specific OpenAPI file to update'
+    required: true

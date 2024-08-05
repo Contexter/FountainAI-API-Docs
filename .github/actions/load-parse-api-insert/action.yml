@@ -1,0 +1,5 @@
+name: Load and Parse API Insert File
+description: Load and parse the API insert file.
+runs:
+  using: 'node12'
+  main: 'index.js'
