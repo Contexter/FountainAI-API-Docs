@@ -63,6 +63,7 @@ set -e
 REPO_URL="https://github.com/Contexter/FountainAI-API-Docs.git"
 BRANCH_NAME="update-api"
 SCRIPT_NAME="setup_pipeline.sh"
+REPO_NAME="FountainAI-API-Docs"
 
 # Ensure required tools are installed
 check_dependencies() {
@@ -76,11 +77,24 @@ check_dependencies() {
   fi
 }
 
+# Check if the script is running within the target repository
+is_in_target_repo() {
+  if [ -d "$REPO_NAME" ] && [ -d "$REPO_NAME/.git" ]; then
+    echo "Already in the $REPO_NAME repository."
+    return 0
+  fi
+  return 1
+}
+
 # Clone the repository and create the update-api branch if not exists
 setup_repository() {
-  echo "Cloning repository..."
-  git clone $REPO_URL
-  cd FountainAI-API-Docs
+  if ! is_in_target_repo; then
+    echo "Cloning repository..."
+    git clone $REPO_URL
+    cd $REPO_NAME
+  else
+    cd $REPO_NAME
+  fi
 
   if ! git show-ref --quiet refs/heads/$BRANCH_NAME; then
     echo "Creating branch $BRANCH_NAME..."
@@ -97,8 +111,8 @@ setup_repository() {
 # Create the GitHub Actions workflow file
 create_workflow_file() {
   echo "Creating GitHub Actions workflow file..."
-  mkdir -p FountainAI-API-Docs/.github/workflows
-  cat <<EOL > FountainAI-API-Docs/.github/workflows/update_openapi.yml
+  mkdir -p $REPO_NAME/.github/workflows
+  cat <<EOL > $REPO_NAME/.github/workflows/update_openapi.yml
 name: Update OpenAPI Documentation
 
 on:
@@ -148,8 +162,8 @@ create_custom_actions() {
   echo "Creating custom GitHub actions..."
 
   # Load and Parse API Insert File
-  mkdir -p FountainAI-API-Docs/.github/actions/load-parse-api-insert
-  cat <<EOL > FountainAI-API-Docs/.github/actions/load-parse-api-insert/action.yml
+  mkdir -p $REPO_NAME/.github/actions/load-parse-api-insert
+  cat <<EOL > $REPO_NAME/.github/actions/load-parse-api-insert/action.yml
 name: Load and Parse API Insert File
 description: Load and parse the API insert file.
 runs:
@@ -157,7 +171,7 @@ runs:
   main: 'index.js'
 EOL
 
-  cat <<EOL > FountainAI-API-Docs/.github/actions/load-parse-api-insert/index.js
+  cat <<EOL > $REPO_NAME/.github/actions/load-parse-api-insert/index.js
 const core = require('@actions/core');
 const fs = require('fs');
 const yaml = require('js-yaml');
@@ -184,16 +198,18 @@ try {
 EOL
 
   # Update OpenAPI Files
-  mkdir -p FountainAI-API-Docs/.github/actions/update-openapi-files
-  cat <<EOL > FountainAI-API-Docs/.github/actions/update-openapi-files/action.yml
+  mkdir -p $REPO_NAME/.github/actions/update-openapi-files
+  cat <<EOL > $REPO_NAME/.github/actions/update-openapi-files/action.yml
 name: Update OpenAPI Files
 description: Update OpenAPI files with the new route and components.
 runs:
-  using: 'node12'
+  using:
+
+ 'node12'
   main: 'index.js'
 EOL
 
-  cat <<EOL > FountainAI-API-Docs/.github/actions/update-openapi-files/index.js
+  cat <<EOL > $REPO_NAME/.github/actions/update-openapi-files/index.js
 const core = require('@actions/core');
 const fs = require('fs');
 const yaml = require('js-yaml');
@@ -204,7 +220,7 @@ try {
   const apiInsertRoute = JSON.parse(core.getInput('api-insert-route'));
   const apiInsertComponents = JSON.parse(core.getInput('api-insert-components'));
 
-  const docsDir = 'FountainAI-API-Docs/docs';
+  const docsDir = '$REPO_NAME/docs';
 
   fs.readdirSync(docsDir).forEach(file => {
     if (file.endsWith('.yaml')) {
@@ -235,8 +251,8 @@ try {
 EOL
 
   # Validate OpenAPI Files
-  mkdir -p FountainAI-API-Docs/.github/actions/validate-openapi-files
-  cat <<EOL > FountainAI-API-Docs/.github/actions/validate-openapi-files/action.yml
+  mkdir -p $REPO_NAME/.github/actions/validate-openapi-files
+  cat <<EOL > $REPO_NAME/.github/actions/validate-openapi-files/action.yml
 name: Validate OpenAPI Files
 description: Validate the updated OpenAPI files.
 runs:
@@ -244,13 +260,11 @@ runs:
   main: 'index.js'
 EOL
 
-  cat <<EOL > FountainAI-API-Docs/.github/actions/validate-openapi-files/index.js
+  cat <<EOL > $REPO_NAME/.github/actions/validate-openapi-files/index.js
 const core = require('@actions/core');
 const fs = require('fs');
 const path = require('path');
-const SwaggerParser = require
-
-('@apidevtools/swagger-parser');
+const SwaggerParser = require('@apidevtools/swagger-parser');
 
 (async () => {
   try {
@@ -269,8 +283,8 @@ const SwaggerParser = require
 EOL
 
   # Generate Documentation
-  mkdir -p FountainAI-API-Docs/.github/actions/generate-docs
-  cat <<EOL > FountainAI-API-Docs/.github/actions/generate-docs/action.yml
+  mkdir -p $REPO_NAME/.github/actions/generate-docs
+  cat <<EOL > $REPO_NAME/.github/actions/generate-docs/action.yml
 name: Generate Documentation
 description: Generate HTML documentation from the OpenAPI files.
 runs:
@@ -278,7 +292,7 @@ runs:
   main: 'index.js'
 EOL
 
-  cat <<EOL > FountainAI-API-Docs/.github/actions/generate-docs/index.js
+  cat <<EOL > $REPO_NAME/.github/actions/generate-docs/index.js
 const core = require('@actions/core');
 const { execSync } = require('child_process');
 const fs = require('fs');
@@ -307,8 +321,8 @@ try {
 EOL
 
   # Commit and Push Changes
-  mkdir -p FountainAI-API-Docs/.github/actions/commit-push-changes
-  cat <<EOL > FountainAI-API-Docs/.github/actions/commit-push-changes/action.yml
+  mkdir -p $REPO_NAME/.github/actions/commit-push-changes
+  cat <<EOL > $REPO_NAME/.github/actions/commit-push-changes/action.yml
 name: Commit and Push Changes
 description: Commit the updated OpenAPI files and push to the branch.
 runs:
@@ -316,7 +330,7 @@ runs:
   main: 'index.js'
 EOL
 
-  cat <<EOL > FountainAI-API-Docs/.github/actions/commit-push-changes/index.js
+  cat <<EOL > $REPO_NAME/.github/actions/commit-push-changes/index.js
 const core = require('@actions/core');
 const { execSync } = require('child_process');
 
@@ -337,10 +351,10 @@ EOL
 
 # Move script to repository if not already there
 move_script_to_repo() {
-  if [[ ! -f FountainAI-API-Docs/$SCRIPT_NAME ]]; then
+  if [[ ! -f $REPO_NAME/$SCRIPT_NAME ]]; then
     echo "Moving script to repository..."
-    cp $SCRIPT_NAME FountainAI-API-Docs/
-    cd FountainAI-API-Docs
+    cp $SCRIPT_NAME $REPO_NAME/
+    cd $REPO_NAME
     git add $SCRIPT_NAME
     git commit -m "Add setup script to repository"
     git push origin $BRANCH_NAME
@@ -466,7 +480,9 @@ Alternatively, if you need to revert multiple commits:
    git log
    ```
 
-2. **Reset the branch**: Use the `git reset` command to reset the branch to the specified commit. The `--hard` option will discard all changes made after the specified commit.
+2. **Reset the branch**: Use the `git reset
+
+` command to reset the branch to the specified commit. The `--hard` option will discard all changes made after the specified commit.
 
    ```bash
    git reset --hard <commit-hash>
