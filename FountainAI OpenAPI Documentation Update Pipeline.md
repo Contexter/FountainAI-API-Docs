@@ -62,6 +62,7 @@ set -e
 # Repository and branch configuration
 REPO_URL="https://github.com/Contexter/FountainAI-API-Docs.git"
 BRANCH_NAME="update-api"
+SCRIPT_NAME="setup_pipeline.sh"
 
 # Ensure required tools are installed
 check_dependencies() {
@@ -247,9 +248,9 @@ EOL
 const core = require('@actions/core');
 const fs = require('fs');
 const path = require('path');
-const SwaggerParser = require('@apide
+const SwaggerParser = require
 
-vtools/swagger-parser');
+('@apidevtools/swagger-parser');
 
 (async () => {
   try {
@@ -292,7 +293,7 @@ try {
   }
 
   fs.readdirSync(docsDir).forEach(file => {
-    if (file endsWith('.yaml')) {
+    if (file.endsWith('.yaml')) {
       const filePath = path.join(docsDir, file);
       const baseName = path.basename(file, '.yaml');
       execSync(\`redocly build-docs \${filePath} --output \${path.join(outputDir, baseName + '.html')}\`);
@@ -334,12 +335,26 @@ try {
 EOL
 }
 
+# Move script to repository if not already there
+move_script_to_repo() {
+  if [[ ! -f FountainAI-API-Docs/$SCRIPT_NAME ]]; then
+    echo "Moving script to repository..."
+    cp $SCRIPT_NAME FountainAI-API-Docs/
+    cd FountainAI-API-Docs
+    git add $SCRIPT_NAME
+    git commit -m "Add setup script to repository"
+    git push origin $BRANCH_NAME
+    cd ..
+  fi
+}
+
 # Main function to run the setup
 main() {
   check_dependencies
   setup_repository
   create_workflow_file
   create_custom_actions
+  move_script_to_repo
 
   echo "Setup complete. You can now push changes to the update-api branch and the workflow will trigger automatically."
 }
@@ -472,3 +487,7 @@ Alternatively, if you need to revert multiple commits:
 ### Summary
 
 This document provides a detailed guide for setting up and using the FountainAI OpenAPI documentation update pipeline. The setup script creates the necessary GitHub Actions workflow and custom actions to automate the process of updating OpenAPI documentation. The instructions ensure that you can easily update and maintain the OpenAPI documentation with minimal manual intervention. By following these steps, you can ensure your OpenAPI documentation is always up-to-date and accessible via GitHub Pages.
+
+Additionally, the setup script ensures that it moves itself into the repository if it's not already there, preventing the repository from being cloned recursively into itself.
+
+---
