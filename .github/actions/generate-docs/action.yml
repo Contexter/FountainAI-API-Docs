@@ -1,0 +1,5 @@
+name: Generate Documentation
+description: Generate HTML documentation from the OpenAPI files.
+runs:
+  using: 'node12'
+  main: 'index.js'

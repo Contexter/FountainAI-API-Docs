@@ -1,0 +1,5 @@
+name: Validate OpenAPI Files
+description: Validate the updated OpenAPI files.
+runs:
+  using: 'node12'
+  main: 'index.js'
