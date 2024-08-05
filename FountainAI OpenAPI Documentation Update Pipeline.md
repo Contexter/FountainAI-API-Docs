@@ -94,22 +94,17 @@ check_dependencies() {
 
 # Check if the script is running within the target repository
 is_in_target_repo() {
-  if [ -d "$REPO_NAME" ] && [ -d "$REPO_NAME/.git" ]; then
-    echo "Already in the $REPO_NAME repository."
-    return 0
+  if [ -d ".git" ] && grep -q "$REPO_URL" .git/config; then
+    echo "Script is running inside the target repository. Exiting to prevent recursive actions."
+    exit 1
   fi
-  return 1
 }
 
 # Clone the repository and create the update-api branch if not exists
 setup_repository() {
-  if ! is_in_target_repo; then
-    echo "Cloning repository..."
-    git clone $REPO_URL
-    cd $REPO_NAME
-  else
-    cd $REPO_NAME
-  fi
+  echo "Cloning repository..."
+  git clone $REPO_URL
+  cd $REPO_NAME
 
   if ! git show-ref --quiet refs/heads/$BRANCH_NAME; then
     echo "Creating branch $BRANCH_NAME..."
@@ -203,7 +198,7 @@ const yaml = require('js-yaml');
 
 try {
   const files = fs.readdirSync('.');
-  const apiInsertFile = files.find(file => file.startsWith('api-insert') && file.endsWith('.yaml'));
+  const apiInsertFile = files.find(file => file.startsWith('api-insert') && file endsWith('.yaml'));
 
   if (!apiInsertFile) {
     core.setFailed('No api-insert file found');
@@ -231,6 +226,8 @@ runs:
   using: 'node12'
   main: 'index.js'
 inputs:
+
+
   api-insert-path:
     description: 'Path for the new API route'
     required: true
@@ -343,7 +340,7 @@ try {
   }
 
   fs.readdirSync(docsDir).forEach(file => {
-    if (file.endsWith('.yaml')) {
+    if (file endsWith('.yaml')) {
       const filePath = path.join(docsDir, file);
       const baseName = path.basename(file, '.yaml');
       execSync(\`redocly build-docs \${filePath} --output \${path.join(outputDir, baseName + '.html')}\`);
@@ -401,6 +398,7 @@ move_script_to_repo() {
 # Main function to run the setup
 main() {
   check_dependencies
+  is_in_target_repo
   setup_repository
   create_workflow_file
   create_custom_actions
@@ -411,6 +409,34 @@ main() {
 
 main
 ```
+
+### Explanation of the Script's Behavior
+
+#### Copying the Script to the Target Repository
+
+The script copies itself to the target repository for the following reasons:
+
+1. **Persistent Availability:** By copying itself to the target repository, the setup script becomes part of the repository's history, ensuring that anyone who clones the repository in the future has immediate access to the setup script.
+
+2. **Ease of Use:** Developers working on the repository can easily re-run the setup script if needed. This is particularly useful for onboarding new team members or setting up new development environments.
+
+3. **Version Control:** Including the setup script in the repository allows it to be version-controlled along with the rest of the project. Any updates or improvements to the script can be tracked, reviewed, and reverted if necessary.
+
+#### The `is_in_target_repo` Check
+
+The `is_in_target_repo` function ensures that the script does not run recursively, which could lead to severe system issues. Here's why this check is crucial:
+
+1. **Preventing Recursive Cloning:**
+   - **Problem:** If the setup script were to run inside the cloned repository, it could attempt to clone the repository again inside itself. This recursive action could consume disk space and system resources, leading to system instability or crashes.
+   - **Solution:** The `is_in_target_repo` function checks if the script is running within a cloned repository by looking for a `.git` directory and verifying the repository URL in the git configuration. If the script detects that it is running within the target repository, it exits immediately to prevent recursive cloning.
+
+2. **Ensuring Script Safety:**
+   - **Problem:** Recursive actions caused by the script can lead to infinite loops, filling up disk space, and rendering the system unresponsive.
+   - **Solution:** By adding a safeguard that exits the script if it detects that it is running inside the target repository, we ensure that the script operates safely and only performs the intended one-time setup actions.
+
+3. **Consistency and Reliability:**
+   - **Problem:** Running the script multiple times, especially if it clones the repository recursively, can lead to inconsistent states and unreliable setup processes.
+   - **Solution:** The check ensures that the script only runs its intended actions once in the correct environment, providing a consistent and reliable setup process for the repository.
 
 ### Using the Pipeline
 
@@ -434,6 +460,8 @@ To create the `api-insert.yaml` file using a GPT model, follow these steps:
    Here is an example output that you can expect from the GPT model:
 
    ```yaml
+
+
    path: /hello
    target-file: specific-openapi-file.yaml # The file you want to update
    route:
