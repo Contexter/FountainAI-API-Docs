@@ -31,22 +31,17 @@ check_dependencies() {
 
 # Check if the script is running within the target repository
 is_in_target_repo() {
-  if [ -d "$REPO_NAME" ] && [ -d "$REPO_NAME/.git" ]; then
-    echo "Already in the $REPO_NAME repository."
-    return 0
+  if [ -d ".git" ] && grep -q "$REPO_URL" .git/config; then
+    echo "Script is running inside the target repository. Exiting to prevent recursive actions."
+    exit 1
   fi
-  return 1
 }
 
 # Clone the repository and create the update-api branch if not exists
 setup_repository() {
-  if ! is_in_target_repo; then
-    echo "Cloning repository..."
-    git clone $REPO_URL
-    cd $REPO_NAME
-  else
-    cd $REPO_NAME
-  fi
+  echo "Cloning repository..."
+  git clone $REPO_URL
+  cd $REPO_NAME
 
   if ! git show-ref --quiet refs/heads/$BRANCH_NAME; then
     echo "Creating branch $BRANCH_NAME..."
@@ -140,7 +135,7 @@ const yaml = require('js-yaml');
 
 try {
   const files = fs.readdirSync('.');
-  const apiInsertFile = files.find(file => file.startsWith('api-insert') && file.endsWith('.yaml'));
+  const apiInsertFile = files.find(file => file.startsWith('api-insert') && file endsWith('.yaml'));
 
   if (!apiInsertFile) {
     core.setFailed('No api-insert file found');
@@ -168,6 +163,8 @@ runs:
   using: 'node12'
   main: 'index.js'
 inputs:
+
+
   api-insert-path:
     description: 'Path for the new API route'
     required: true
@@ -280,7 +277,7 @@ try {
   }
 
   fs.readdirSync(docsDir).forEach(file => {
-    if (file.endsWith('.yaml')) {
+    if (file endsWith('.yaml')) {
       const filePath = path.join(docsDir, file);
       const baseName = path.basename(file, '.yaml');
       execSync(\`redocly build-docs \${filePath} --output \${path.join(outputDir, baseName + '.html')}\`);
@@ -338,6 +335,7 @@ move_script_to_repo() {
 # Main function to run the setup
 main() {
   check_dependencies
+  is_in_target_repo
   setup_repository
   create_workflow_file
   create_custom_actions
