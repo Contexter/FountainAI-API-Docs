@@ -710,9 +710,8 @@ To create the `api-insert.yaml` file using a GPT model, follow these steps:
    - Once the workflow completes, check the `gh-pages` branch for the updated HTML documentation.
    - The documentation will be available at:
      - Main page: `https://Contexter.github.io/FountainAI-API-Docs/index.html`
-     - Core API: `https://Contexter.github.io/FountainAI-API-Docs/core.html`
-     - Character API: `https://Contexter.github.io/FountainAI-API-Docs/character.html`
-     - Session API: `https://Contexter.github.io/FountainAI-API-Docs/session.html`
+     - DNS Mapped Domain: `https://docs.fountain.coach`
+
 
 ### Reverting Changes
 
