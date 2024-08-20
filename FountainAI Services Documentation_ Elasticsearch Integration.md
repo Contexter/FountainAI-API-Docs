@@ -30,6 +30,12 @@ The Character Management Service is responsible for handling all aspects of char
 | **GET /characters**                           | [GET /characters/_search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)        | Retrieves all character documents.                                                                   |
 | **GET /characters/{characterId}/paraphrases** | [GET /paraphrases/_search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)       | Retrieves all paraphrases linked to a character.                                                     |
 | **POST /characters/{characterId}/paraphrases**| [POST /paraphrases/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html)      | Indexes a new paraphrase linked to a character.                                                      |
+| **GET /actions**                              | [GET /actions/_search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)           | Retrieves all action documents.                                                                      |
+| **POST /actions**                             | [POST /actions/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html)          | Indexes a new action document.                                                                       |
+| **GET /spokenWords**                          | [GET /spokenWords/_search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)       | Retrieves all spoken word documents.                                                                 |
+| **POST /spokenWords**                         | [POST /spokenWords/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html)      | Indexes a new spoken word document.                                                                  |
+| **GET /spokenWords/{spokenWordId}/paraphrases**| [GET /paraphrases/_search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)       | Retrieves all paraphrases linked to a spoken word.                                                   |
+| **POST /spokenWords/{spokenWordId}/paraphrases**| [POST /paraphrases/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html)      | Indexes a new paraphrase linked to a spoken word.                                                    |
 
 ### **Key Elasticsearch Concepts:**
 - **[Indexing Documents](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html)**: How data is stored in Elasticsearch as documents.
@@ -58,10 +64,12 @@ The Core Script Management Service handles the creation, retrieval, updating, an
 | **GET /scripts/{scriptId}/sections/{sectionId}**     | [GET /sections/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html)             | Retrieves a specific section by ID.                                                                  |
 | **PUT /scripts/{scriptId}/sections/{sectionId}**     | [POST /sections/_update/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update.html)      | Updates a specific section document.                                                                 |
 | **DELETE /scripts/{scriptId}/sections/{sectionId}**  | [DELETE /sections/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html)       | Deletes a section document.                                                                          |
+| **POST /scripts/{scriptId}/sections/reorder**        | [POST /_bulk](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html)                       | Reorders section headings within a script by updating their sequence numbers.                        |
 
 ### **Key Elasticsearch Concepts:**
 - **[Managing Documents](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs.html)**: How to create, retrieve, update, and delete documents.
 - **[Search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)**: Fundamental for retrieving documents based on specific criteria.
+- **[Bulk API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html)**: Used to perform multiple document operations in a single request.
 
 ---
 
@@ -76,7 +84,9 @@ This service manages session data and contextual information, ensuring continuit
 |---------------------------------------------|---------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
 | **POST /sessions**                          | [POST /sessions/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html)         | Indexes a new session document.                                                                      |
 | **GET /sessions/{sessionId}**               | [GET /sessions/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html)             | Retrieves a specific session document by ID.                                                         |
+| **PUT /sessions/{sessionId}**               | [POST /sessions/_update/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update.html)      | Updates a specific session document.                                                                 |
 | **DELETE /sessions/{sessionId}**            | [DELETE /sessions/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html)       | Deletes a session document.                                                                          |
+| **GET /sessions**                           | [GET /sessions/_search](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)          | Retrieves all session documents.                                                                     |
 | **POST /contexts**                          | [POST /contexts/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html)         | Indexes new context data.                                                                            |
 | **GET /contexts/{contextId}**               | [GET /contexts/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html)             | Retrieves specific context data by ID.                                                               |
 | **DELETE /contexts/{contextId}**            | [DELETE /contexts/_doc/{id}](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html)       | Deletes context data.                                                                                |
@@ -131,6 +141,3 @@ This documentation provides a comprehensive guide to how each service within Fou
 
 For detailed information about each Elasticsearch API used, please refer to the links provided, which direct you to the official Elasticsearch REST API documentation.
 
----
-
-This should now be complete and formatted correctly. Let me know if you need anything else.
