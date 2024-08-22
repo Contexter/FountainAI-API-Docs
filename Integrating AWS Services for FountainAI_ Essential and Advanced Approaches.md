@@ -57,7 +57,7 @@ This paper outlines both the essential AWS services needed to support FountainAI
 - **Alarms:** Notifies you when specific events or thresholds are triggered.
 - **Dashboards:** Provides visual insights into your system’s health.
 
-**Learn More:** [Amazon CloudWatch Documentation](https://docs.aws.amazon.com/cloudwatch/latest/monitoring/WhatIsCloudWatch.html)
+**Learn More:** [Amazon CloudWatch Documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html)
 
 ---
 
@@ -142,7 +142,3 @@ For detailed information on each service and how to best integrate them into you
 ---
 
 By following this guide, you can ensure that FountainAI is not only well-integrated but also capable of scaling and adapting as your requirements evolve.
-
---- 
-
-> This structure should be more aligned with proper Markdown formatting conventions.
