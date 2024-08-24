@@ -1,24 +1,35 @@
-# **Character Management API with Direct Elasticsearch Integration**
+# **Character Management API with Secure Opensearch Integration**
 
 ## **Overview**
 
-This document provides a comprehensive guide for the Character Management API in FountainAI, directly integrating Elasticsearch REST API paths into the OpenAPI specification. This approach ensures straightforward interactions with Elasticsearch, eliminating the need for an additional mapping layer.
+This document provides a comprehensive guide for the Character Management API in FountainAI, integrating directly with Opensearch via secure configurations and AWS API Gateway extensions. This approach ensures straightforward interactions with Opensearch while maintaining best practices for security and deployment.
 
 ## **1. Objective**
 
-- **Direct Integration:** Use Elasticsearch REST API paths directly in the OpenAPI specification.
-- **Unified Configuration:** Utilize the OpenAPI files for GPT model actions and AWS API Gateway configurations.
-- **Maintain Expressivity:** Preserve the API's detailed structure while aligning it directly with Elasticsearch.
+- **Direct Integration:** Use Opensearch REST API paths directly in the OpenAPI specification.
+- **Secure Configuration:** Implement best practices to securely manage sensitive information, such as Opensearch domain and API keys.
+- **AWS API Gateway Configuration:** Leverage AWS-specific extensions for integration, security, and deployment.
+- **Maintain Expressivity:** Preserve the API's detailed structure while aligning it directly with Opensearch and AWS.
 
 ## **2. Character Management API: Full OpenAPI Specification**
 
-Below is the full OpenAPI specification for the Character Management Service, configured to directly interact with Elasticsearch.
+### **2.1. Handling Secrets Securely**
+
+Sensitive information such as Opensearch domain endpoints, API keys, and other credentials should not be hardcoded in the OpenAPI document. Instead, placeholders or environment variable references should be used, with the actual values injected during deployment or retrieved at runtime.
+
+#### **Example Configuration:**
+- **Opensearch Domain:** Use a placeholder or environment variable reference (`${OPENSEARCH_DOMAIN}`) instead of hardcoding the domain name.
+- **AWS Secrets Manager or Parameter Store:** Store sensitive information in AWS Secrets Manager or Parameter Store and retrieve them at runtime.
+
+### **2.2. OpenAPI Specification**
+
+Below is the OpenAPI specification for the Character Management Service, configured for secure interaction with Opensearch and optimized for AWS API Gateway.
 
 ```yaml
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: Character Management API
-  description: API for managing characters in the FountainAI system, integrated directly with Elasticsearch.
+  description: API for managing characters in the FountainAI system, integrated directly with Opensearch.
   version: 1.0.0
 servers:
   - url: https://api.characters.fountainai.com
@@ -27,10 +38,10 @@ paths:
   /characters/_search:
     post:
       summary: Retrieve all characters
-      description: Queries the Elasticsearch index to retrieve all character documents.
+      description: Queries the Opensearch index to retrieve all character documents.
       operationId: searchCharacters
       requestBody:
-        description: The Elasticsearch query object.
+        description: The Opensearch query object.
         required: true
         content:
           application/json:
@@ -39,7 +50,7 @@ paths:
               properties:
                 query:
                   type: object
-                  description: The Elasticsearch Query DSL to filter characters.
+                  description: The Opensearch Query DSL to filter characters.
       responses:
         '200':
           description: A list of characters
@@ -56,10 +67,16 @@ paths:
                       type: string
                     description:
                       type: string
+      x-amazon-apigateway-integration:
+        type: http
+        uri: ${OPENSEARCH_DOMAIN}/_search
+        httpMethod: POST
+        passthroughBehavior: when_no_match
+        connectionType: INTERNET
   /characters/_doc:
     post:
       summary: Create a new character
-      description: Adds a new character document to the Elasticsearch index.
+      description: Adds a new character document to the Opensearch index.
       operationId: createCharacter
       requestBody:
         description: Character data to be added.
@@ -89,10 +106,16 @@ paths:
                   result:
                     type: string
                     example: "created"
+      x-amazon-apigateway-integration:
+        type: http
+        uri: ${OPENSEARCH_DOMAIN}/_doc
+        httpMethod: POST
+        passthroughBehavior: when_no_match
+        connectionType: INTERNET
   /characters/_doc/{characterId}:
     get:
       summary: Retrieve a character by ID
-      description: Retrieves a specific character document from the Elasticsearch index by its ID.
+      description: Retrieves a specific character document from the Opensearch index by its ID.
       operationId: getCharacterById
       parameters:
         - name: characterId
@@ -117,10 +140,16 @@ paths:
                     type: string
         '404':
           description: Character not found
+      x-amazon-apigateway-integration:
+        type: http
+        uri: ${OPENSEARCH_DOMAIN}/_doc/{characterId}
+        httpMethod: GET
+        passthroughBehavior: when_no_match
+        connectionType: INTERNET
   /characters/_doc/{characterId}:
     put:
       summary: Update a character by ID
-      description: Updates an existing character document in the Elasticsearch index.
+      description: Updates an existing character document in the Opensearch index.
       operationId: updateCharacterById
       parameters:
         - name: characterId
@@ -157,10 +186,16 @@ paths:
                     example: "updated"
         '404':
           description: Character not found
+      x-amazon-apigateway-integration:
+        type: http
+        uri: ${OPENSEARCH_DOMAIN}/_doc/{characterId}
+        httpMethod: PUT
+        passthroughBehavior: when_no_match
+        connectionType: INTERNET
   /characters/_doc/{characterId}:
     delete:
       summary: Delete a character by ID
-      description: Deletes a character document from the Elasticsearch index by its ID.
+      description: Deletes a character document from the Opensearch index by its ID.
       operationId: deleteCharacterById
       parameters:
         - name: characterId
@@ -185,10 +220,16 @@ paths:
                     example: "deleted"
         '404':
           description: Character not found
+      x-amazon-apigateway-integration:
+        type: http
+        uri: ${OPENSEARCH_DOMAIN}/_doc/{characterId}
+        httpMethod: DELETE
+        passthroughBehavior: when_no_match
+        connectionType: INTERNET
   /characters/_doc/{characterId}/paraphrases/_search:
     post:
       summary: Retrieve paraphrases for a character
-      description: Queries the Elasticsearch index for paraphrases linked to a specific character.
+      description: Queries the Opensearch index for paraphrases linked to a specific character.
       operationId: searchParaphrases
       parameters:
         - name: characterId
@@ -198,7 +239,7 @@ paths:
           schema:
             type: string
       requestBody:
-        description: The Elasticsearch query object for paraphrases.
+        description: The Opensearch query object for paraphrases.
         required: true
         content:
           application/json:
@@ -224,10 +265,16 @@ paths:
                       type: string
                     commentary:
                       type: string
+      x-amazon-apigateway-integration:
+        type: http
+        uri: ${OPENSEARCH_DOMAIN}/_doc/{characterId}/paraphrases/_search
+        httpMethod: POST
+        passthroughBehavior: when_no_match
+        connectionType: INTERNET
   /characters/_doc/{characterId}/paraphrases/_doc:
     post:
       summary: Create a paraphrase for a character
-      description: Adds a new paraphrase document to the Elasticsearch index linked to a specific character.
+      description: Adds a new paraphrase document to the Opensearch index linked to a specific character.
       operationId: createParaphrase
       parameters:
         - name: characterId
@@ -264,10 +311,16 @@ paths:
                   result:
                     type: string
                     example: "created"
+      x-amazon-apigateway-integration:
+        type: http
+        uri: ${OPENSEARCH_DOMAIN}/_doc/{characterId}/paraphrases/_doc
+        httpMethod: POST
+        passthroughBehavior: when_no_match
+        connectionType: INTERNET
   /characters/_doc/{characterId}/paraphrases/_doc/{paraphraseId}:
     get:
       summary: Retrieve a paraphrase by ID
-      description: Retrieves a specific paraphrase document from the Elasticsearch index by its ID.
+      description: Retrieves a specific paraphrase document from the Opensearch index by its ID.
       operationId: getParaphraseById
       parameters:
         - name: characterId
@@ -298,10 +351,16 @@ paths:
                     type: string
         '404':
           description: Paraphrase not found
+      x-amazon-apigateway-integration:
+        type: http
+        uri: ${OPENSEARCH_DOMAIN}/_doc/{characterId}/paraphrases/_doc/{paraphraseId}
+        httpMethod: GET
+        passthroughBehavior: when_no_match
+        connectionType: INTERNET
   /characters/_doc/{characterId}/paraphrases/_doc/{paraphraseId}:
     put:
       summary: Update a paraphrase by ID
-      description: Updates an existing paraphrase document in the Elasticsearch index.
+      description: Updates an existing paraphrase document in the Opensearch index.
       operationId: updateParaphraseById
       parameters:
         - name: characterId
@@ -344,10 +403,16 @@ paths:
                     example: "updated"
         '404':
           description: Paraphrase not found
+      x-amazon-apigateway-integration:
+        type: http
+        uri: ${OPENSEARCH_DOMAIN}/_doc/{characterId}/paraphrases/_doc/{paraphraseId}
+        httpMethod: PUT
+        passthroughBehavior: when_no_match
+        connectionType: INTERNET
   /characters/_doc/{characterId}/paraphrases/_doc/{paraphraseId}:
     delete:
       summary: Delete a paraphrase by ID
-      description: Deletes a paraphrase document from the Elasticsearch index by its ID.
+      description: Deletes a paraphrase document from the Opensearch index by its ID.
       operationId: deleteParaphraseById
       parameters:
         - name: characterId
@@ -378,52 +443,81 @@ paths:
                     example: "deleted"
         '404':
           description: Paraphrase not found
+      x-amazon-apigateway-integration:
+        type: http
+        uri: ${OPENSEARCH_DOMAIN}/_doc/{characterId}/paraphrases/_doc/{paraphraseId}
+        httpMethod: DELETE
+        passthroughBehavior: when_no_match
+        connectionType: INTERNET
 components:
+  schemas: {}
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
       in: header
       name: X-API-Key
+x-amazon-apigateway-endpoint-configuration:
+  types:
+    - REGIONAL
+x-amazon-apigateway-cors:
+  allowOrigins:
+    - "*"
+  allowMethods:
+    - GET
+    - POST
+    - OPTIONS
+  allowHeaders:
+    - Content-Type
+    - X-Amz-Date
+    - Authorization
+    - X-Api-Key
+    - X-Amz-Security-Token
+  maxAge: 600
 security:
   - ApiKeyAuth: []
 ```
 
-### **2.1. Key Sections Explained**
+### **2.3. Key Sections Explained**
 
-- **Servers Section:**
-  - **URL:** `https://api.characters.fountainai.com` — This server section points directly to the FountainAI Character Management API server, ensuring that all requests are routed correctly.
+- **AWS API Gateway Extensions:**
+  - **`x-amazon-apigateway-integration`:** Specifies the backend integration for each path, using placeholders for sensitive information like the Opensearch domain.
+  - **`x-amazon-apigateway-endpoint-configuration`:** Configures the API Gateway as a Regional endpoint.
+  - **`x-amazon-apigateway-cors`:** Defines CORS settings to allow cross-origin requests.
+  - **`x-amazon-apigateway-auth`:** Specifies the authorization method, here using API Key Authentication.
+
+- **Security with Placeholders:**
+  - **Environment Variables:** Use environment variables or secure storage like AWS Secrets Manager or Parameter Store to inject values for placeholders at runtime.
+  - **Example Placeholder:** `${OPENSEARCH_DOMAIN}` is used instead of hardcoding the domain, and the actual value is injected during deployment.
 
 - **Paths Section:**
-  - **`/characters/_search`:** Queries the Elasticsearch index for characters. The operation expects a query object following Elasticsearch's query DSL.
-  - **`/characters/_doc`:** Creates a new character document in Elasticsearch.
+  - **`/characters/_search`:** Integration with Opensearch to retrieve all character documents.
+  - **`/characters/_doc`:** Integration with Opensearch to create a new character document.
   - **`/characters/_doc/{characterId}`:**
     - **GET:** Retrieves a specific character document by its ID.
     - **PUT:** Updates a specific character document by its ID.
     - **DELETE:** Deletes a specific character document by its ID.
-  - **`/characters/_doc/{characterId}/paraphrases/_search`:** Queries Elasticsearch for paraphrases linked to a specific character.
-  - **`/characters/_doc/{characterId}/paraphrases/_doc`:** Creates, retrieves, updates, and deletes paraphrase documents linked to a character in Elasticsearch.
-
-- **Security Schemes:**
-  - **API Key Authentication:** The API requires an API key for all operations, passed in the `X-API-Key` header.
+  - **`/characters/_doc/{characterId}/paraphrases/_search`:** Integration with Opensearch to retrieve paraphrases linked to a specific character.
+  - **`/characters/_doc/{characterId}/paraphrases/_doc`:** Creates, retrieves, updates, and deletes paraphrase documents linked to a character in Opensearch.
 
 ### **3. Using This Specification for GPT Model Actions**
 
 - **Action:** "Search for characters"
   - **API Call:** `POST /characters/_search`
-  - **Operation:** The GPT model generates a query based on user input and interacts directly with Elasticsearch to retrieve matching character documents.
+  - **Operation:** The GPT model generates a query based on user input and interacts directly with Opensearch to retrieve matching character documents.
 
 - **Action:** "Create a character"
   - **API Call:** `POST /characters/_doc`
-  - **Operation:** The GPT model sends a character creation request to Elasticsearch, which then stores the new document in the `characters` index.
+  - **Operation:** The GPT model sends a character creation request to Opensearch, which then stores the new document in the `characters` index.
 
 ### **4. Using This Specification for AWS API Gateway**
 
-- **Import the OpenAPI Specification:** Use the AWS API Gateway console or CLI to import the OpenAPI specification.
-- **Security Setup:** AWS API Gateway will enforce API key authentication as defined in the OpenAPI specification.
-- **Deployment:** Deploy the API to a specific stage (e.g., `prod`), making it live and accessible via the specified URL.
+- **Import the OpenAPI Specification:** Use the AWS API Gateway console or CLI to import the OpenAPI specification, which includes placeholders for sensitive information.
+- **Secret Management:** Use AWS Secrets Manager, Parameter Store, or environment variables to manage and inject sensitive information at runtime.
+- **Deployment:** Deploy the API to a specific stage (e.g., `prod`) and ensure that the integrations and settings are functioning as expected with secure configuration.
 
 ### **5. Conclusion**
 
-This comprehensive OpenAPI specification directly integrates Elasticsearch REST API paths into the Character Management API for FountainAI. It ensures that all interactions with Elasticsearch are direct and secure, without the need for an additional mapping layer. This approach maintains the expressivity of the API, making it easier to manage, configure, and deploy across various platforms, including GPT models and AWS API Gateway.
+This comprehensive OpenAPI specification integrates Opensearch REST API paths with AWS API Gateway extensions while ensuring that sensitive information is securely managed. This approach maintains the expressivity of the API, making it easier to manage, configure, and deploy across various platforms, including GPT models and AWS API Gateway, without exposing secrets.
 
-This method can be extended to other FountainAI services, ensuring consistency and reliability across the entire system while simplifying the API management process.
+This method completes the series of OpenAPI specifications for the FountainAI services, ensuring consistency, security, and reliability across the entire system while simplifying the API management process.
+
