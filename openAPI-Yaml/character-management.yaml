@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Character Management API
   description: >
-    This API handles characters within screenplays, including their creation, management, actions, and spoken words. It integrates with the Central Sequence Service to ensure logical sequence numbers for each element, allowing a coherent flow within the story.
+    This API handles characters within stories, including their creation, management, actions, and spoken words. It integrates with the Central Sequence Service to ensure logical sequence numbers for each element, allowing a coherent flow within the story.
   version: 1.0.0
 servers:
   - url: https://character.fountain.coach
@@ -389,7 +389,7 @@ components:
           description: Name of the character.
         description:
           type: string
-          description: A brief description of the character and their role within the screenplay.
+          description: A brief description of the character and their role within the story.
     CharacterCreateRequest:
       type: object
       properties:
@@ -398,7 +398,7 @@ components:
           description: Name of the character.
         description:
           type: string
-          description: A brief description of the character and their role within the screenplay.
+          description: A brief description of the character and their role within the story.
       required:
         - name
         - description
