@@ -59,7 +59,7 @@ The FountainAI system comprises the following components:
 
 ### **Functional Requirements**
 
-1. **Microservices**: Each microservice provides RESTful APIs for managing specific screenplay elements.
+1. **Microservices**: Each microservice provides RESTful APIs for managing specific story elements.
 2. **OpenAPI Specifications**: Each microservice must expose an OpenAPI specification that exactly matches predefined schemas for input and output.
 3. **Data Persistence**: Use a unified PostgreSQL database for storing all data, ensuring consistency and reliability.
 4. **API Gateway Integration**: Utilize Kong API Gateway to:
